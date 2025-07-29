@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infusion Rate Calculator</title>
+    <!-- Purpose: Import Tailwind CSS for modern, responsive styling -->
+    <!-- Flow: CDN import provides all utility classes for layout and design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Purpose: Import Chart.js for interactive chart generation -->
+    <!-- Flow: CDN import provides chart rendering capabilities -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Purpose: Main container with centered layout and responsive design -->
+    <!-- Flow: Creates a clean, professional medical calculator interface -->
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header Section -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Infusion Rate Calculator</h1>
+            <p class="text-gray-600">Calculate infusion rates based on dose, body weight, and concentration</p>
+        </div>
+
+        <!-- Input Form Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Calculation Parameters</h2>
+            
+            <!-- Purpose: Grid layout for input fields with responsive design -->
+            <!-- Flow: Organizes inputs in a clean 2-column layout on larger screens -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Single Calculation Inputs -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-medium text-gray-700">Single Calculation</h3>
+                    
+                    <div>
+                        <label for="dose" class="block text-sm font-medium text-gray-700 mb-1">Dose (mcg/kg/min)</label>
+                        <input type="number" id="dose" step="0.01" min="0" value="0.05" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="weight" class="block text-sm font-medium text-gray-700 mb-1">Body Weight (kg)</label>
+                        <input type="number" id="weight" step="1" min="1" value="70" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="concentration" class="block text-sm font-medium text-gray-700 mb-1">Concentration (mcg/ml)</label>
+                        <input type="number" id="concentration" step="0.1" min="0.1" value="4" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <!-- Purpose: Single calculation result display -->
+                    <!-- Flow: Shows immediate result for individual calculation -->
+                    <div class="bg-blue-50 p-4 rounded-md">
+                        <p class="text-sm text-gray-700">Infusion Rate:</p>
+                        <p id="single-result" class="text-2xl font-bold text-blue-700">0.00 ml/hr</p>
+                    </div>
+                </div>
+                <!--
+                <!-- Chart Parameters -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-medium text-gray-700">Chart Parameters</h3>
+                    
+                    <div>
+                        <label for="min-dose" class="block text-sm font-medium text-gray-700 mb-1">Min Dose (mcg/kg/min)</label>
+                        <input type="number" id="min-dose" step="0.01" min="0" value="0.01" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="max-dose" class="block text-sm font-medium text-gray-700 mb-1">Max Dose (mcg/kg/min)</label>
+                        <input type="number" id="max-dose" step="0.01" min="0" value="0.5" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="min-weight" class="block text-sm font-medium text-gray-700 mb-1">Min Weight (kg)</label>
+                        <input type="number" id="min-weight" step="1" min="1" value="50" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="max-weight" class="block text-sm font-medium text-gray-700 mb-1">Max Weight (kg)</label>
+                        <input type="number" id="max-weight" step="1" min="1" value="100" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Purpose: Action buttons for calculations and chart generation -->
+            <!-- Flow: Provides clear call-to-action buttons with distinct styling -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-6">
+                <button onclick="calculateSingle()" 
+                        class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 font-medium">
+                    Calculate Single
+                </button>
+                <!--
+                <button onclick="generateChart()" 
+                        class="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 font-medium">
+                    Generate Chart
+                </button>
+                -->
+                <button onclick="generateTable()" 
+                        class="px-6 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors duration-200 font-medium">
+                    Generate Table
+                </button>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+         <!--
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Infusion Rate Chart</h2>
+            <!-- Purpose: Canvas element for Chart.js rendering -->
+            <!-- Flow: Provides drawing surface for interactive charts -->
+     <!--
+            <div class="relative h-96">
+                <canvas id="infusionChart"></canvas>
+            </div>
+        </div>
+    -->
+        <!-- Table Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Infusion Rate Table</h2>
+            <!-- Purpose: Container for dynamic table generation -->
+            <!-- Flow: Will be populated with calculated infusion rates -->
+            <div id="table-container" class="overflow-x-auto">
+                <p class="text-gray-500 text-center py-8">Click "Generate Table" to display infusion rates</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Purpose: Global variables for chart management and calculations
+        // Flow: Maintains chart instance and provides calculation functions
+        let chartInstance = null;
+
+        // Purpose: Calculate infusion rate using the formula: dose × weight × 60 / concentration
+        // Flow: Takes dose (mcg/kg/min), weight (kg), concentration (mcg/ml) and returns ml/hr
+        function calculateInfusionRate(dose, weight, concentration) {
+            return (dose * weight * 60) / concentration;
+        }
+
+        // Purpose: Calculate and display single infusion rate result
+        // Flow: Gets input values, calculates rate, updates display
+        function calculateSingle() {
+            const dose = parseFloat(document.getElementById('dose').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const concentration = parseFloat(document.getElementById('concentration').value);
+            
+            if (dose && weight && concentration) {
+                const rate = calculateInfusionRate(dose, weight, concentration);
+                document.getElementById('single-result').textContent = `${rate.toFixed(2)} ml/hr`;
+            }
+        }
+
+        // Purpose: Generate interactive line chart showing infusion rates across different weights
+        // Flow: Creates chart with multiple dose lines, each showing rates for weight range
+        function generateChart() {
+            const minDose = parseFloat(document.getElementById('min-dose').value);
+            const maxDose = parseFloat(document.getElementById('max-dose').value);
+            const minWeight = parseFloat(document.getElementById('min-weight').value);
+            const maxWeight = parseFloat(document.getElementById('max-weight').value);
+            const concentration = parseFloat(document.getElementById('concentration').value);
+
+            // Purpose: Generate weight points for x-axis
+            // Flow: Creates array of weights from min to max with 5kg intervals
+            const weights = [];
+            for (let w = minWeight; w <= maxWeight; w += 5 ) {
+                weights.push(w);
+            }
+
+            // Purpose: Generate dose levels for different chart lines
+            // Flow: Creates 5 dose levels evenly distributed between min and max
+            const doses = [];
+            const doseStep = (maxDose - minDose) / 9;
+            for (let i = 0; i < 10; i++) {
+                doses.push(minDose + (i * doseStep));
+            }
+
+            // Purpose: Create datasets for each dose level
+            // Flow: Each dose becomes a line on the chart with different colors
+            const datasets = doses.map((dose, index) => {
+                const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'];
+                const data = weights.map(weight => 
+                    calculateInfusionRate(dose, weight, concentration)
+                );
+                
+                return {
+                    label: `${dose.toFixed(3)} mcg/kg/min`,
+                    data: data,
+                    borderColor: colors[index],
+                    backgroundColor: colors[index] + '20',
+                    tension: 0.1
+                };
+            });
+
+            // Purpose: Destroy existing chart to prevent overlap
+            // Flow: Cleans up previous chart instance before creating new one
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            // Purpose: Create new Chart.js line chart
+            // Flow: Configures and renders interactive chart with hover effects
+            const ctx = document.getElementById('infusionChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: weights.map(w => `${w} kg`),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Infusion Rates by Body Weight and Dose'
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Body Weight (kg)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Infusion Rate (ml/hr)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Purpose: Generate HTML table showing infusion rates matrix
+        // Flow: Creates table with doses as rows and weights as columns
+        function generateTable() {
+            const minDose = parseFloat(document.getElementById('min-dose').value);
+            const maxDose = parseFloat(document.getElementById('max-dose').value);
+            const minWeight = parseFloat(document.getElementById('min-weight').value);
+            const maxWeight = parseFloat(document.getElementById('max-weight').value);
+            const concentration = parseFloat(document.getElementById('concentration').value);
+
+            // Purpose: Generate arrays for doses and weights
+            // Flow: Creates systematic ranges for table rows and columns
+            const doses = [];
+            const doseStep = (maxDose - minDose) / 10; // 10 dose levels
+            for (let i = 0; i <= 10; i++) {
+                doses.push(minDose + (i * doseStep));
+            }
+
+            const weights = [];
+            const weightStep = (maxWeight - minWeight) / 10; // 10 weight levels
+            for (let i = 0; i <= 10; i++) {
+                weights.push(minWeight + (i * weightStep));
+            }
+
+            // Purpose: Build HTML table with calculated infusion rates
+            // Flow: Creates responsive table with proper styling and formatting
+            let tableHTML = `
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                Dose (mcg/kg/min)
+                            </th>
+            `;
+
+            // Purpose: Create table headers for each weight
+            // Flow: Adds column headers showing body weights
+            weights.forEach(weight => {
+                tableHTML += `
+                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                        ${weight.toFixed(1)} kg
+                    </th>
+                `;
+            });
+
+            tableHTML += `
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+            `;
+
+            // Purpose: Create table rows with calculated infusion rates
+            // Flow: Each row represents a dose level with rates for all weights
+            doses.forEach((dose, doseIndex) => {
+                tableHTML += `
+                    <tr class="${doseIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                        <td class="px-4 py-2 text-sm font-medium text-gray-900 border-r">
+                            ${dose.toFixed(2)}
+                        </td>
+                `;
+
+                weights.forEach(weight => {
+                    const rate = calculateInfusionRate(dose, weight, concentration);
+                    tableHTML += `
+                        <td class="px-4 py-2 text-sm text-gray-700 text-center">
+                            ${rate.toFixed(0)}
+                        </td>
+                    `;
+                });
+
+                tableHTML += `</tr>`;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+                <p class="text-sm text-gray-600 mt-2">
+                    All rates shown in ml/hr based on concentration of ${concentration} mcg/ml
+                </p>
+            `;
+
+            document.getElementById('table-container').innerHTML = tableHTML;
+        }
+
+        // Purpose: Initialize calculator with default single calculation
+        // Flow: Performs initial calculation when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateSingle();
+        });
+
+        // Purpose: Real-time calculation updates as user types
+        // Flow: Recalculates single result whenever input values change
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                if (['dose', 'weight', 'concentration'].includes(this.id)) {
+                    calculateSingle();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
