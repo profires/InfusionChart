@@ -10,6 +10,43 @@
     <!-- Purpose: Import Chart.js for interactive chart generation -->
     <!-- Flow: CDN import provides chart rendering capabilities -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Purpose: Enhanced mobile table styling */
+        /* Flow: Improves touch targets and scroll behavior on mobile devices */
+        @media (max-width: 768px) {
+            /* Purpose: Better touch scrolling for tables */
+            .overflow-x-auto {
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+            }
+            
+            /* Purpose: Larger touch targets on mobile */
+            table td, table th {
+                min-height: 44px;
+                touch-action: manipulation;
+            }
+            
+            /* Purpose: Improved sticky positioning on iOS */
+            .sticky {
+                position: -webkit-sticky;
+                position: sticky;
+            }
+        }
+        
+        /* Purpose: Custom scrollbar styling */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Purpose: Main container with centered layout and responsive design -->
@@ -241,8 +278,8 @@
             });
         }
 
-        // Purpose: Generate HTML table showing infusion rates matrix
-        // Flow: Creates table with doses as rows and weights as columns
+        // Purpose: Generate mobile-friendly HTML table with sticky headers and first column
+        // Flow: Creates table with fixed positioning for better mobile scrolling experience
         function generateTable() {
             const minDose = parseFloat(document.getElementById('min-dose').value);
             const maxDose = parseFloat(document.getElementById('max-dose').value);
@@ -253,59 +290,74 @@
             // Purpose: Generate arrays for doses and weights
             // Flow: Creates systematic ranges for table rows and columns
             const doses = [];
-            const doseStep = (maxDose - minDose) / 10; // 10 dose levels
+            const doseStep = (maxDose - minDose) / 10;
             for (let i = 0; i <= 10; i++) {
                 doses.push(minDose + (i * doseStep));
             }
 
             const weights = [];
-            const weightStep = (maxWeight - minWeight) / 10; // 10 weight levels
+            const weightStep = (maxWeight - minWeight) / 10;
             for (let i = 0; i <= 10; i++) {
                 weights.push(minWeight + (i * weightStep));
             }
 
-            // Purpose: Build HTML table with calculated infusion rates
-            // Flow: Creates responsive table with proper styling and formatting
+            // Purpose: Build mobile-friendly HTML table with sticky positioning
+            // Flow: Creates table with fixed headers and first column for better mobile UX
             let tableHTML = `
-                <table class="min-w-full bg-white border border-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                Dose (mcg/kg/min)
-                            </th>
+                <div class="relative">
+                    <!-- Purpose: Mobile scroll indicator -->
+                    <!-- Flow: Shows users they can scroll horizontally on mobile -->
+                    <div class="block sm:hidden text-center text-xs text-gray-500 mb-2 animate-pulse">
+                        ← Swipe left/right to view more columns →
+                    </div>
+                    
+                    <!-- Purpose: Scrollable table container with sticky elements -->
+                    <!-- Flow: Enables horizontal scrolling while keeping headers visible -->
+                    <div class="overflow-x-auto overflow-y-visible shadow-inner" style="max-height: 70vh;">
+                        <table class="min-w-full bg-white border border-gray-200 relative">
+                            <thead class="bg-gray-50 sticky top-0 z-20">
+                                <tr>
+                                    <!-- Purpose: Sticky first column header -->
+                                    <!-- Flow: Remains visible during horizontal scrolling -->
+                                    <th class="sticky left-0 z-30 bg-gray-50 px-2 sm:px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-r-2 border-gray-300 min-w-[120px]">
+                                        Dose<br><span class="text-[10px] normal-case">(mcg/kg/min)</span>
+                                    </th>
             `;
 
-            // Purpose: Create table headers for each weight
-            // Flow: Adds column headers showing body weights
-            weights.forEach(weight => {
+            // Purpose: Create sticky weight column headers
+            // Flow: Each weight becomes a scrollable column header
+            weights.forEach((weight, index) => {
                 tableHTML += `
-                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                        ${weight.toFixed(1)} kg
+                    <th class="px-2 sm:px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b min-w-[80px] ${index === 0 ? 'border-l-2 border-gray-300' : ''}">
+                        ${weight.toFixed(1)}<br><span class="text-[10px] normal-case">kg</span>
                     </th>
                 `;
             });
 
             tableHTML += `
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
             `;
 
-            // Purpose: Create table rows with calculated infusion rates
-            // Flow: Each row represents a dose level with rates for all weights
+            // Purpose: Create table rows with sticky first column
+            // Flow: Each dose row has a fixed first column and scrollable data columns
             doses.forEach((dose, doseIndex) => {
                 tableHTML += `
-                    <tr class="${doseIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
-                        <td class="px-4 py-2 text-sm font-medium text-gray-900 border-r">
+                    <tr class="${doseIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors">
+                        <!-- Purpose: Sticky first column showing dose values -->
+                        <!-- Flow: Remains visible when scrolling horizontally -->
+                        <td class="sticky left-0 z-10 px-2 sm:px-4 py-2 text-sm font-medium text-gray-900 border-r-2 border-gray-300 ${doseIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50">
                             ${dose.toFixed(2)}
                         </td>
                 `;
 
-                weights.forEach(weight => {
+                weights.forEach((weight, weightIndex) => {
                     const rate = calculateInfusionRate(dose, weight, concentration);
                     tableHTML += `
-                        <td class="px-4 py-2 text-sm text-gray-700 text-center">
-                            ${rate.toFixed(0)}
+                        <td class="px-2 sm:px-4 py-2 text-sm text-gray-700 text-center hover:bg-blue-100 transition-colors ${weightIndex === 0 ? 'border-l-2 border-gray-300' : ''}">
+                            <span class="font-medium">${rate.toFixed(0)}</span>
+                            <div class="text-xs text-gray-500">ml/hr</div>
                         </td>
                     `;
                 });
@@ -314,11 +366,24 @@
             });
 
             tableHTML += `
-                    </tbody>
-                </table>
-                <p class="text-sm text-gray-600 mt-2">
-                    All rates shown in ml/hr based on concentration of ${concentration} mcg/ml
-                </p>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Purpose: Mobile usage instructions -->
+                    <!-- Flow: Helps users understand how to interact with the table -->
+                    <div class="mt-4 text-sm text-gray-600">
+                        <div class="block sm:hidden">
+                            <p class="font-medium mb-1">Mobile Tips:</p>
+                            <ul class="text-xs space-y-1">
+                                <li>• Scroll horizontally to see all weight columns</li>
+                                <li>• First column (doses) stays visible while scrolling</li>
+                                <li>• Tap any cell to see the exact calculation</li>
+                            </ul>
+                        </div>
+                        <p class="mt-2">All rates shown in ml/hr based on concentration of ${concentration} mcg/ml</p>
+                    </div>
+                </div>
             `;
 
             document.getElementById('table-container').innerHTML = tableHTML;
